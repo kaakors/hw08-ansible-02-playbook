@@ -32,3 +32,12 @@
       register: create_db
       failed_when: create_db.rc != 0 and create_db.rc !=82
       changed_when: create_db.rc == 0
+      
+    - name: download vector
+      get_url:
+        url: "https://packages.timber.io/vector/0.23.3/vector-0.23.3-1.x86_64.rpm"
+        dest: "./vector-0.23.3.rpm"
+    - name: install vector
+      yum:
+        name: vector-0.23.3.rpm
+        state: present
