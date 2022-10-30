@@ -21,23 +21,58 @@
             dest: "./clickhouse-common-static-{{ clickhouse_version }}.rpm"
     - name: Install clickhouse packages
       become: true
-      ansible.builtin.yum:
+      yum:
         name:
-          - clickhouse-common-static-{{ clickhouse_version }}.rpm
           - clickhouse-client-{{ clickhouse_version }}.rpm
           - clickhouse-server-{{ clickhouse_version }}.rpm
+          - clickhouse-common-static-{{ clickhouse_version }}.rpm
       notify: Start clickhouse service
-    - name: Create database
-      ansible.builtin.command: "clickhouse-client -q 'create database logs;'"
-      register: create_db
-      failed_when: create_db.rc != 0 and create_db.rc !=82
-      changed_when: create_db.rc == 0
-      
-    - name: download vector
+    - name: Flush
+      meta: flush_handlers
+- name: Install vector
+  hosts: vector
+  become: true
+  tasks:      
+    - name: Download vector
       get_url:
-        url: "https://packages.timber.io/vector/0.23.3/vector-0.23.3-1.x86_64.rpm"
-        dest: "./vector-0.23.3.rpm"
-    - name: install vector
+        url: "https://packages.timber.io/vector/0.12.2/vector-0.12.2-1.x86_64.rpm"
+        dest: "./vector-0.12.2.rpm"
+    - name: Install vector
       yum:
-        name: vector-0.23.3.rpm
+        name:
+          - vector-0.12.2.rpm
+        state: latest
+- name: Install nginx
+  become: true
+  hosts: lighthouse
+  tasks:
+    - name: Download repo
+      get_url:
+        url: http://nginx.org/packages/centos/7/noarch/RPMS/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+        dest: /tmp/nginx-release-centos-7-0.el7.ngx.noarch.rpm
+    - name: Install nginx
+      yum:
+        name: /tmp/nginx-release-centos-7-0.el7.ngx.noarch.rpm
         state: present
+    - name: Install
+      yum:
+        name: nginx
+        state: present
+    - name: Start nginx
+      service: 
+        name: nginx
+        state: started
+        enabled: true
+- name: Install lighthouse
+  become: true
+  hosts: lighthouse
+  tasks:
+    - name: Git clone
+      git:
+        repo: https://github.com/VKCOM/lighthouse.git
+        dest: /usr/share/nginx/html/repo
+    - name: Copy files
+      copy:
+        src: /usr/share/nginx/html/repo/
+        dest: /usr/share/nginx/html/
+        remote_src: yes
