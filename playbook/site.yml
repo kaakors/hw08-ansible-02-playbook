@@ -2,7 +2,7 @@
 - name: Install Clickhouse
   hosts: clickhouse
   handlers:
-    - name: Start clickhouse service
+    - name: Start clickhouse services
       become: true
       ansible.builtin.service:
         name: clickhouse-server
