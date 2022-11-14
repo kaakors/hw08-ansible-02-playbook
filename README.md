@@ -20,7 +20,7 @@
 >       выполнил, готовый playbook: ./playbook/site.yml
 
 2. При создании tasks рекомендую использовать модули: `get_url`, `template`, `yum`, `apt`.
-3. Tasks должны: скачать статику lighthouse, установить nginx или любой другой webserver, настроить его конфиг для открытия lighthouse, запустить webserver.
+3. Tasks должны: скачать статику lssssighthouse, установить nginx или любой другой webserver, настроить его конфиг для открытия lighthouse, запустить webserver.
 4. Приготовьте свой собственный inventory файл `prod.yml`.
 
 >       составил, файл расположен ./inventory/prod.yml
